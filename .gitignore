@@ -1,0 +1,66 @@
+# ---------------------------------------------------------------------------
+# Secrets: every env file except the examples, keys and credential files
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+*.pem
+*.key
+credentials
+credentials.json
+
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+.log/
+*.log
+
+# ---------------------------------------------------------------------------
+# Node / Next.js
+# ---------------------------------------------------------------------------
+node_modules/
+frontend/.next/
+frontend/out/
+frontend/next-env.d.ts
+*.tsbuildinfo
+npm-debug.log*
+
+# ---------------------------------------------------------------------------
+# Local data: staged ingestion files and conversation memory
+# ---------------------------------------------------------------------------
+data/_staged_products/
+memory/*
+!memory/.gitkeep
+
+# ---------------------------------------------------------------------------
+# Terraform state and caches (the provider lockfile IS committed)
+# ---------------------------------------------------------------------------
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfstate.d/
+*.tfvars
+*.tfplan
+crash.log
+
+# ---------------------------------------------------------------------------
+# OS / editor
+# ---------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# ---------------------------------------------------------------------------
+# Framework-generated notes (frontend has no docs of its own)
+# ---------------------------------------------------------------------------
+frontend/*.md

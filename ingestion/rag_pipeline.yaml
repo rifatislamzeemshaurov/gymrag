@@ -1,0 +1,43 @@
+splitter:
+  strategy: "recursive"
+  # Staged single-product files run up to ~900 chars (see rag_pipeline.ipynb
+  # section 2). chunk_size must stay above that so every product stays in ONE
+  # chunk; otherwise a retrieved chunk could carry only half a product's specs,
+  # which is exactly the kind of partial context that leads to hallucinated
+  # answers.
+  chunk_size: 1500
+  chunk_overlap: 0
+
+embeddings:
+  provider: "openai"
+  model: "text-embedding-3-small"
+  api_key: "${OPENAI_API_KEY}"
+
+llm:
+  provider: "openai"
+  model: "gpt-4o-mini"
+  api_key: "${OPENAI_API_KEY}"
+
+vectorstore:
+  url: "${QDRANT_URL}"
+  api_key: "${QDRANT_API_KEY}"
+  collection_name: "gymrag-supplements-openai-qdrant"
+  use_sparse: true
+  # true = every run of the notebook drops and rebuilds the collection from
+  # ../data/, so the catalog always matches the PDFs exactly. Set to false for
+  # incremental runs (see ingest.md).
+  force_recreate: true
+
+retriever:
+  search_type: "hybrid"
+  top_k: 5
+  auto_filter: false
+
+metadata:
+  config_file: "rag_metadata.yaml"
+
+logging:
+  level: "INFO"
+  console_output: true
+  colored: false
+  log_file: "./.log/ragwire.log"

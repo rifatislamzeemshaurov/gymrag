@@ -1,0 +1,135 @@
+# ==========================================================
+# GymRAG supplement catalog metadata schema
+# ==========================================================
+# The literal instructions the LLM follows for every staged product file.
+# backend/metadata.yaml must stay identical to this file.
+version: "1.0"
+
+description: >
+  Extract structured metadata from one supplement product listing.
+  Every input chunk is exactly ONE product's complete profile, already
+  cleaned into "Label: value" lines by the ingestion notebook.
+  Copy every field exactly as written. Never infer missing values.
+
+prompt: |
+  You are extracting structured metadata for exactly ONE supplement product from a single, isolated document chunk. Nothing else exists for this task: no other product, no other chunk, no prior knowledge of supplements or brands.
+
+  CRITICAL RULES:
+  1. Use ONLY the text in this chunk. Never use information from another product, training data, or general knowledge about a brand.
+  2. Copy every value character-for-character as printed: numbers, currency symbols, units and punctuation. Do not paraphrase, round, reformat or "correct" anything.
+  3. A field is null ONLY when it is genuinely absent from this chunk. Never invent a value to fill a null.
+  4. Output exactly one category: whey_protein, creatine, pre_workout, post_workout or multivitamin. If the chunk has a "Category:" line, copy it. Otherwise (for example an uploaded product label), decide from the content: protein powders -> whey_protein, creatine products -> creatine, pre-training energy/pump formulas -> pre_workout, recovery/amino/glutamine/electrolyte formulas -> post_workout, vitamin and mineral formulas -> multivitamin. Only these category-specific fields apply:
+       - whey_protein -> protein_per_serving, protein_source
+       - creatine     -> creatine_per_serving, creatine_form
+       - pre_workout  -> caffeine_per_serving, l_citrulline, beta_alanine
+       - post_workout -> amino_acids_per_serving, glutamine_per_serving, electrolytes
+       - multivitamin -> serving_size, key_nutrients, best_for
+     Every category-specific field that does NOT belong to this chunk's category must be null.
+  5. Output must satisfy the field schema exactly, with no extra commentary.
+
+fields:
+  - name: category
+    type: string
+    values: [whey_protein, creatine, pre_workout, post_workout, multivitamin]
+    description: >
+      Copy the value of the "Category:" line exactly, or classify the product if there is no such line.
+
+  - name: brand_or_make
+    type: string
+    description: >
+      Copy the exact brand name (the "Brand / Make:" line, or the brand printed on the label).
+
+  - name: product_name
+    type: string
+    description: >
+      Copy the exact product name: the full "Product Name:" line exactly as written, even when it starts with a word from the brand name (e.g. "PureLift Creatine Gummies" stays "PureLift Creatine Gummies"). For an uploaded label without that line, copy the product name printed on the label without the separate brand name.
+
+  - name: price
+    type: string
+    description: >
+      Copy the exact value of the "Price:" line, including the currency symbol. Example: "$54.99"
+
+  - name: quantity_servings
+    type: string
+    description: >
+      Copy the exact value of the "Quantity / Servings:" line. Example: "2 lbs / 30 Servings"
+
+  - name: brand_overview
+    type: string
+    description: >
+      Copy the exact text of the "Brand Overview:" line.
+
+  - name: review_and_efficacy
+    type: string
+    description: >
+      Copy the exact text of the "Review & Efficacy:" line.
+
+  # --- Whey protein ---
+  - name: protein_per_serving
+    type: string
+    description: >
+      Only when category is whey_protein: copy the exact value of "Protein per Serving". Null otherwise.
+
+  - name: protein_source
+    type: string
+    description: >
+      Only when category is whey_protein: copy the exact value of "Protein Source". Null otherwise.
+
+  # --- Creatine ---
+  - name: creatine_per_serving
+    type: string
+    description: >
+      Only when category is creatine: copy the exact value of "Creatine per Serving". Null otherwise.
+
+  - name: creatine_form
+    type: string
+    description: >
+      Only when category is creatine: copy the exact value of "Creatine Form". Null otherwise.
+
+  # --- Pre-workout ---
+  - name: caffeine_per_serving
+    type: string
+    description: >
+      Only when category is pre_workout: copy the exact value of "Caffeine per Serving". Null otherwise.
+
+  - name: l_citrulline
+    type: string
+    description: >
+      Only when category is pre_workout: copy the exact value of "L-Citrulline (Pump)". Null otherwise.
+
+  - name: beta_alanine
+    type: string
+    description: >
+      Only when category is pre_workout: copy the exact value of "Beta-Alanine (Endurance)". Null otherwise.
+
+  # --- Post-workout / recovery ---
+  - name: amino_acids_per_serving
+    type: string
+    description: >
+      Only when category is post_workout: copy the exact value of "Amino Acids per Serving". Null otherwise.
+
+  - name: glutamine_per_serving
+    type: string
+    description: >
+      Only when category is post_workout: copy the exact value of "Glutamine per Serving". Null otherwise.
+
+  - name: electrolytes
+    type: string
+    description: >
+      Only when category is post_workout: copy the exact value of "Electrolytes". Null otherwise.
+
+  # --- Multivitamin ---
+  - name: serving_size
+    type: string
+    description: >
+      Only when category is multivitamin: copy the exact value of "Serving Size". Null otherwise.
+
+  - name: key_nutrients
+    type: string
+    description: >
+      Only when category is multivitamin: copy the exact value of "Key Nutrients". Null otherwise.
+
+  - name: best_for
+    type: string
+    description: >
+      Only when category is multivitamin: copy the exact value of "Best For". Null otherwise.
